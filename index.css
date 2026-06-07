@@ -819,3 +819,24 @@ a:has(.cyh-logo-header):hover,
 a:has(.cyh-logo-footer):hover {
     text-decoration: none !important;
 }
+
+.github-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none !important;
+}
+
+.github-icon {
+    height: 24px;
+    width: auto;
+    object-fit: contain;
+    transition: transform 0.2s, filter 0.2s;
+    vertical-align: middle;
+    filter: brightness(0.9);
+}
+
+.github-icon:hover {
+    transform: scale(1.08);
+    filter: brightness(1.2);
+}
