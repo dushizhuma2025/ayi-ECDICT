@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>阿一开源英语字典</title>
+    <link rel="stylesheet" href="index.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- 头部导航 -->
+        <header class="app-header">
+            <div class="brand">
+                <img src="https://n8jmply6oexq.meoo.fun/sb-api/storage/v1/object/public/ayi_oss/public/1780479992750-ayilogo.png" alt="阿一开源英语字典 Logo" class="logo-img">
+                <div class="brand-text">
+                    <h1>阿一开源英语字典</h1>
+                    <p class="slogan">阿一词友会开发副产品</p>
+                </div>
+                <a href="https://cyh.ayi001.xyz/" target="_blank" class="title-link"><img src="https://cyh.ayi001.xyz/ayi_img/ciyouhui_logo.png" alt="词友会：一起背单词！" class="cyh-logo-header"></a>
+            </div>
+            <div class="header-actions" style="display: flex; gap: 12px; align-items: center;">
+                <button id="btn-export" class="btn btn-secondary"
+                    style="padding: 8px 16px; font-size: 13px; border-color: rgba(59, 130, 246, 0.4); color: #60a5fa;">📥
+                    导出 CSV</button>
+                <div class="status-badge">76+ 万词条离线数据库</div>
+            </div>
+        </header>
+
+        <!-- 主筛选面板 -->
+        <section class="filter-panel card">
+            <div class="filter-row main-search">
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="search-input" placeholder="输入英文单词前缀进行匹配（例如: apple）...">
+                </div>
+                <button id="btn-reset" class="btn btn-secondary">重置筛选</button>
+            </div>
+
+            <div class="filter-grid">
+                <!-- 考纲标签多选 -->
+                <div class="filter-group">
+                    <label>📚 考纲大纲标签</label>
+                    <div class="tag-chips" id="tag-container">
+                        <span class="chip" data-tag="zk">中考</span>
+                        <span class="chip" data-tag="gk">高考</span>
+                        <span class="chip" data-tag="cet4">四级</span>
+                        <span class="chip" data-tag="cet6">六级</span>
+                        <span class="chip" data-tag="ky">考研</span>
+                        <span class="chip" data-tag="toefl">托福</span>
+                        <span class="chip" data-tag="ielts">雅思</span>
+                        <span class="chip" data-tag="gre">GRE</span>
+                    </div>
+                </div>
+
+                <!-- 柯林斯星级 -->
+                <div class="filter-group">
+                    <label>⭐ 柯林斯星级</label>
+                    <div class="star-rating" id="star-container">
+                        <span class="star-btn active" data-star="">全部</span>
+                        <span class="star-btn" data-star="5">五星</span>
+                        <span class="star-btn" data-star="4">四星以上</span>
+                        <span class="star-btn" data-star="3">三星以上</span>
+                        <span class="star-btn" data-star="2">二星以上</span>
+                        <span class="star-btn" data-star="1">一星以上</span>
+                        <span class="star-btn" data-star="0">未评级</span>
+                    </div>
+                </div>
+
+                <!-- 牛津核心词 & 词频范围 -->
+                <div class="filter-group row-group">
+                    <div class="toggle-item">
+                        <label>🎯 牛津 3000 核心词</label>
+                        <label class="switch">
+                            <input type="checkbox" id="oxford-toggle">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="range-inputs" title="BNC (英国国家语料库) 词频顺序：数值代表该单词在语料库中的词频排名，数值越小代表越常用。">
+                        <label>📊 BNC 词频范围</label>
+                        <div class="inputs">
+                            <input type="number" id="bnc-min" placeholder="最小" min="1">
+                            <span>-</span>
+                            <input type="number" id="bnc-max" placeholder="最大">
+                        </div>
+                    </div>
+
+                    <div class="range-inputs" title="COCA (当代美语语料库) 词频顺序：数值代表该单词在语料库中的词频排名，数值越小代表越常用。">
+                        <label>🔥 COCA (FRQ) 范围</label>
+                        <div class="inputs">
+                            <input type="number" id="frq-min" placeholder="最小" min="1">
+                            <span>-</span>
+                            <input type="number" id="frq-max" placeholder="最大">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 数据表格面板 -->
+        <main class="data-panel card">
+            <div class="panel-header">
+                <div class="result-count">共找到 <span id="total-count">0</span> 个单词</div>
+                <div class="page-size-selector">
+                    <span>每页显示</span>
+                    <select id="limit-selector">
+                        <option value="10">10 条</option>
+                        <option value="20" selected>20 条</option>
+                        <option value="50">50 条</option>
+                        <option value="100">100 条</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 数据表格 -->
+            <div class="table-container">
+                <table id="word-table">
+                    <thead>
+                        <tr>
+                            <th>单词</th>
+                            <th>音标</th>
+                            <th width="20%">中文翻译</th>
+                            <th>词性</th>
+                            <th id="th-collins" class="sortable-header" style="width: 80px; min-width: 75px; text-align: center;">柯林斯</th>
+                            <th>牛津</th>
+                            <th>考纲</th>
+                            <th id="th-bnc" class="sortable-header" style="width: 80px; min-width: 75px; text-align: center;"
+                                title="BNC (英国国家语料库) 词频排名：基于 1 亿词 of 英国英语历史及口笔语语料库统计，排名越小越常用。">BNC</th>
+                            <th id="th-coca" class="sortable-header" style="width: 80px; min-width: 75px; text-align: center;"
+                                title="COCA (当代美语语料库) 词频排名：基于 10 亿词 of 现代美国英语口语、报纸、学术等语料库统计，排名越小越常用。">COCA</th>
+                            <th>时态变化</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body">
+                        <!-- 数据行由 JavaScript 动态插入 -->
+                    </tbody>
+                </table>
+                <div id="loading-spinner" class="spinner-overlay hidden">
+                    <div class="spinner"></div>
+                    <span class="loading-text">正在检索数据库...</span>
+                </div>
+                <div id="no-data" class="no-data-overlay hidden">
+                    <span class="no-data-icon">📭</span>
+                    <span>未匹配到任何单词，请更换筛选条件</span>
+                </div>
+            </div>
+
+            <!-- 分页控件 -->
+            <footer class="pagination-footer">
+                <div class="pagination-info" id="pagination-info">正在加载...</div>
+                <div class="pagination-controls" id="pagination-controls">
+                    <!-- 分页按钮 -->
+                </div>
+            </footer>
+        </main>
+
+        <!-- 页脚 -->
+        <footer class="app-footer">
+            <p>本工具为阿一开发词友会的副产品，AI编程用时2小时</p>
+            <p><a href="https://cyh.ayi001.xyz/" target="_blank"><img src="https://cyh.ayi001.xyz/ayi_img/ciyouhui_logo.png" alt="词友会：一起背单词！" class="cyh-logo-footer"></a></p>
+        </footer>
+    </div>
+
+    <!-- 单词详情滑出抽屉 (Detail Drawer) -->
+    <div id="detail-drawer" class="drawer">
+        <div class="drawer-overlay" id="drawer-overlay"></div>
+        <div class="drawer-content">
+            <header class="drawer-header">
+                <h2 id="drawer-word">Word</h2>
+                <button class="close-btn" id="btn-close-drawer">×</button>
+            </header>
+            <div class="drawer-body">
+                <div class="detail-section">
+                    <div class="detail-item"><strong>音标：</strong><span id="detail-phonetic" class="ipa">/--/</span>
+                    </div>
+                    <div class="detail-item"><strong>柯林斯：</strong><span id="detail-collins">--</span></div>
+                    <div class="detail-item"><strong>牛津 3000：</strong><span id="detail-oxford">--</span></div>
+                    <div class="detail-item"><strong>考纲标签：</strong><span id="detail-tag">--</span></div>
+                </div>
+
+                <div class="detail-section">
+                    <h3>💡 中文释义</h3>
+                    <div class="detail-block translation" id="detail-translation">--</div>
+                </div>
+
+                <div class="detail-section">
+                    <h3>📖 英文释义</h3>
+                    <div class="detail-block definition" id="detail-definition">--</div>
+                </div>
+
+                <div class="detail-section">
+                    <h3>🔄 时态与词形变换</h3>
+                    <div class="detail-block exchange" id="detail-exchange">--</div>
+                </div>
+
+                <div class="detail-section flex-row">
+                    <div class="freq-box">
+                        <span class="num" id="detail-bnc">--</span>
+                        <span class="lbl">BNC 词频排名</span>
+                    </div>
+                    <div class="freq-box">
+                        <span class="num" id="detail-frq">--</span>
+                        <span class="lbl">COCA 词频排名</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="index.js"></script>
+</body>
+
+</html>

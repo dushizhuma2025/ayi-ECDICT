@@ -1,3 +1,10 @@
 __pycache__
 
 /.vscode/*
+
+.env
+.superpowers/
+build/
+dist/
+ecdict.db
+*.spec
